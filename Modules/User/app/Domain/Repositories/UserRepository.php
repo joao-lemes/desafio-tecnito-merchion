@@ -15,4 +15,6 @@ interface UserRepository
     public function create(array $attributes): User;
 
     public function getByUuid(string $uuid): ?User;
+
+    public function update(User $user): void;
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\User\Domain\Services;
 
+use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
 use Illuminate\Support\Str;
 use Modules\User\Domain\Repositories\UserRepository;
@@ -48,6 +49,32 @@ class UserService
             throw new NotFoundException(trans('exception.not_found.user'));
         }
 
+        return new OutputUser($user);
+    }
+
+    public function update(
+        string $uuid,
+        ?string $name,
+        ?string $email,
+        ?string $currentPassword,
+        ?string $newPassword
+    ): OutputUser {
+        $user = $this->userRepository->getByUuid($uuid);
+    
+        if (empty($user)) {
+            throw new NotFoundException(trans('exception.not_found.user'));
+        }
+    
+        if ($newPassword && !password_verify($currentPassword, $user->password)) {
+            throw new BadRequestException(trans('auth.password'));
+        }
+
+        $user->name = $name ? $name : $user->name;
+        $user->email = $email ? $email : $user->email;
+        $user->password = $newPassword ? bcrypt($newPassword) : $user->password;
+    
+        $this->userRepository->update($user);
+    
         return new OutputUser($user);
     }
 }

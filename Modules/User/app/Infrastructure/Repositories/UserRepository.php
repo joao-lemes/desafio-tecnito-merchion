@@ -34,4 +34,13 @@ class UserRepository implements IUserRepository
     {
         return $this->model->where('uuid', $uuid)->first();
     }
+
+    public function update(User $user): void
+    {
+        $this->model->where('uuid', $user->uuid)->update([
+            'name' => $user->name,
+            'email' => $user->email,
+            'password' => $user->password,
+        ]);
+    }
 }
