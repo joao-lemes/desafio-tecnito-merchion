@@ -87,5 +87,8 @@ class UserService
         }
     
         $this->userRepository->delete($user);
+        if ($uuid === auth()->user()?->uuid) {
+            auth()->logout();
+        }
     }
 }
