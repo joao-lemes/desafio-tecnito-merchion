@@ -43,4 +43,9 @@ class UserRepository implements IUserRepository
             'password' => $user->password,
         ]);
     }
+
+    public function delete(User $user): void
+    {
+        $this->model->where('uuid', $user->uuid)->delete();
+    }
 }

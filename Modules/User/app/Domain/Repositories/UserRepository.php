@@ -17,4 +17,6 @@ interface UserRepository
     public function getByUuid(string $uuid): ?User;
 
     public function update(User $user): void;
+
+    public function delete(User $user): void;
 }

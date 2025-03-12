@@ -77,4 +77,15 @@ class UserService
     
         return new OutputUser($user);
     }
+
+    public function delete(string $uuid): void
+    {
+        $user = $this->userRepository->getByUuid($uuid);
+    
+        if (empty($user)) {
+            throw new NotFoundException(trans('exception.not_found.user'));
+        }
+    
+        $this->userRepository->delete($user);
+    }
 }
