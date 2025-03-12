@@ -1,93 +1,91 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>();
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const error = ref<string | null>(null);
 
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-});
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+const login = async () => {
+  error.value = null;
+  try {
+    const response = await axios.post('/api/login', {
+      email: email.value,
+      password: password.value
     });
+
+    localStorage.setItem('token', response.data.access_token);
+
+    router.push('/painel');
+  } catch (err) {
+    error.value = 'Erro ao fazer login.';
+    if (err.response && err.response.data && err.response.data.message) {
+      error.value = err.response.data.message;
+    }
+  }
 };
 </script>
 
 <template>
-    <AuthBase title="Log in to your account" description="Enter your email and password below to log in">
-        <Head title="Log in" />
-
-        <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
-
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="email"
-                        v-model="form.email"
-                        placeholder="email@example.com"
-                    />
-                    <InputError :message="form.errors.email" />
-                </div>
-
-                <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
-                            Forgot password?
-                        </TextLink>
-                    </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="form.errors.password" />
-                </div>
-
-                <div class="flex items-center justify-between" :tabindex="3">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model:checked="form.remember" :tabindex="4" />
-                        <span>Remember me</span>
-                    </Label>
-                </div>
-
-                <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
-                    <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    Log in
-                </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
-            </div>
-        </form>
-    </AuthBase>
+  <div class="container">
+      <h1>Login</h1>
+      <form @submit.prevent="login" class="space-y-4">
+        <input type="email" v-model="email" placeholder="E-mail" required class="border p-2 rounded w-full" />
+        <input type="password" v-model="password" placeholder="Senha" required class="border p-2 rounded w-full" />
+        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700 w-full">Login</button>
+        <router-link to="/cadastro" class="btn">Registrar</router-link>
+      </form>
+      <p v-if="error" class="error text-red-500 mt-2">{{ error }}</p>
+  </div>
 </template>
+
+<style scoped>
+.container {
+  max-width: 450px;
+  margin: auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #FFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input, button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+}
+
+button {
+  padding: 8px 16px;
+  max-width: 105px;
+  margin-left: 172px;
+  background-color: #F44336;
+  color: #FFF;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #D32F2F;
+}
+
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 1.2rem;
+  color: #FFF;
+  background: #F44336;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  background: #D32F2F;
+}
+</style>

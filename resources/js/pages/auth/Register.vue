@@ -1,83 +1,77 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-});
+const router = useRouter();
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const passwordConfirmation = ref('');
+const error = ref<string | null>(null);
 
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+const register = async () => {
+  error.value = null;
+  try {
+    await axios.post('/api/users', {
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      password_confirmation: passwordConfirmation.value
     });
+    router.push('/sucesso-cadastro');
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Erro ao cadastrar. Tente novamente.'
+    error.value = 'Erro ao cadastrar. Tente novamente.';
+    if (err.response && err.response.data && err.response.data.message) {
+      error.value = err.response.data.message;
+    }
+  }
 };
 </script>
 
 <template>
-    <AuthBase title="Create an account" description="Enter your details below to create your account">
-        <Head title="Register" />
-
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input id="name" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.name" placeholder="Full name" />
-                    <InputError :message="form.errors.name" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input id="email" type="email" required :tabindex="2" autocomplete="email" v-model="form.email" placeholder="email@example.com" />
-                    <InputError :message="form.errors.email" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="3"
-                        autocomplete="new-password"
-                        v-model="form.password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="form.errors.password" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        required
-                        :tabindex="4"
-                        autocomplete="new-password"
-                        v-model="form.password_confirmation"
-                        placeholder="Confirm password"
-                    />
-                    <InputError :message="form.errors.password_confirmation" />
-                </div>
-
-                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="form.processing">
-                    <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    Create account
-                </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Log in</TextLink>
-            </div>
-        </form>
-    </AuthBase>
+    <div class="container">
+      <h1 class="text-2x1 font-bold text-gray-800">Cadastro</h1>
+      <form @submit.prevent="register" class="space-y-4">
+        <input type="text" v-model="name" placeholder="Nome" required class="border p-2 rounded w-full" />
+        <input type="email" v-model="email" placeholder="E-mail" required class="border p-2 rounded w-full" />
+        <input type="password" v-model="password" placeholder="Senha" required class="border p-2 rounded w-full" />
+        <input type="password" v-model="passwordConfirmation" placeholder="Confirme a sua senha" required class="border p-2 rounded w-full" />
+        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700 w-full">Cadastrar</button>
+      </form>
+      <p v-if="error" class="error text-red-500 mt-2">{{ error }}</p>
+  </div>
 </template>
+
+<style scoped>
+.container {
+  max-width: 450px;
+  margin: auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #FFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input, button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+}
+
+button {
+  background-color: #F44336;
+  color: #FFF;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #D32F2F;
+}
+</style>
