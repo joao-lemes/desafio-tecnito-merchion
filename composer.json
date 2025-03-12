@@ -22,18 +22,23 @@
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
+        "nwidart/laravel-modules": "^12.0",
         "phpunit/phpunit": "^11.5.3"
     },
     "autoload": {
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\User\\": "Modules/User/app/",
+            "Modules\\User\\Database\\Factories\\": "Modules/User/database/factories/",
+            "Modules\\User\\Database\\Seeders\\": "Modules/User/database/seeders/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Modules\\User\\Tests\\": "Modules/User/tests/"
         }
     },
     "scripts": {
@@ -73,7 +78,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "stable",
