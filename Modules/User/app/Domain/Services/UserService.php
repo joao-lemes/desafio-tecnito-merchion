@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\User\Domain\Services;
 
+use App\Exceptions\NotFoundException;
 use Illuminate\Support\Str;
 use Modules\User\Domain\Repositories\UserRepository;
 use Modules\User\Http\Resources\OutputUser;
@@ -35,6 +36,17 @@ class UserService
             'password' => bcrypt($password),
             'uuid' => Str::uuid()->toString(),
         ]);
+
+        return new OutputUser($user);
+    }
+
+    public function getByUuid(string $uuid): OutputUser
+    {
+        $user = $this->userRepository->getByUuid($uuid);
+
+        if (empty($user)) {
+            throw new NotFoundException(trans('exception.not_found.user'));
+        }
 
         return new OutputUser($user);
     }

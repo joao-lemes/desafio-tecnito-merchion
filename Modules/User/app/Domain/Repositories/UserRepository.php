@@ -13,4 +13,6 @@ interface UserRepository
 
     /** @param array<string> $attributes */
     public function create(array $attributes): User;
+
+    public function getByUuid(string $uuid): ?User;
 }

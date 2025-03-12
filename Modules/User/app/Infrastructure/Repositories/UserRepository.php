@@ -29,4 +29,9 @@ class UserRepository implements IUserRepository
     {
         return $this->model->create($attributes);
     }
+
+    public function getByUuid(string $uuid): ?User
+    {
+        return $this->model->where('uuid', $uuid)->first();
+    }
 }
